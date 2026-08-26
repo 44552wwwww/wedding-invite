@@ -1244,11 +1244,14 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
   });
 
   /* ================= 祝福墙 ================= */
-  var SEED_BLESS=[
-    {who:'阿豪',msg:'祝狄兴&舒佳新婚快乐，百年好合，早生贵子！',when:Date.now()-86400000*3},
-    {who:'小雅',msg:'愿你们的爱情像婚礼的鲜花一样，永远芬芳热烈。',when:Date.now()-86400000*2}
-  ];
+  var SEED_BLESS=[];   // 预置示例留言已移除，祝福墙从空开始
   var blessList=store.get('wb_bless',SEED_BLESS);
+  /* 版本标记：清掉旧版缓存的预置示例留言，祝福墙从空开始（只清一次） */
+  if(store.get('wb_bless_ver','')!=='2'){
+    blessList=[];
+    store.set('wb_bless',blessList);
+    store.set('wb_bless_ver','2');
+  }
   function loadCloudBless(){
     if(!DB.on)return;
     DB.loadBless().then(function(rows){
