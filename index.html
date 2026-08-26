@@ -137,6 +137,14 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
 .icon-btn.playing #icoPause{display:block}
 .icon-btn.playing #icoPlay{display:none}
 .icon-btn #icoPause{display:none}
+.mini-upload{
+  width:30px;height:30px;padding:0;border-radius:50%;cursor:pointer;
+  background:rgba(255,252,246,.5);border:1px solid rgba(201,168,106,.45);
+  display:flex;align-items:center;justify-content:center;color:rgba(168,143,90,.78);
+  opacity:.72;transition:opacity .3s,transform .3s var(--ease);
+}
+.mini-upload svg{width:14px;height:14px}
+.mini-upload:active{transform:scale(.9);opacity:1}
 
 .cover-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
 .cover-en{font-family:var(--script);font-size:1.9rem;color:var(--champagne-deep);letter-spacing:3px;margin-bottom:10px}
@@ -162,7 +170,7 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
   display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-soft);
   font-size:.82rem;letter-spacing:3px;
 }
-.cover-scroll .chev{width:22px;height:22px;animation:bounce 1.8s infinite}
+.cover-scroll .chev{width:22px;height:22px;animation:bounce 2.2s ease-in-out 3;animation-delay:.6s}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
 
 /* ============ 爱情倒计时 ============ */
@@ -221,16 +229,13 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
 
 /* ============ 婚纱相册 ============ */
 .album{background:linear-gradient(180deg,var(--ivory-deep),var(--ivory))}
-.album-toolbar{display:flex;justify-content:center;gap:12px;margin-bottom:26px}
+.album-toolbar{display:flex;justify-content:flex-end;gap:12px;margin:-8px 2px 14px}
 .album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .ph-item{position:relative;border-radius:12px;overflow:hidden;background:var(--ivory-deep);
-  box-shadow:0 8px 20px rgba(75,63,54,.10);cursor:pointer;
+  box-shadow:0 8px 20px rgba(75,63,54,.10);cursor:pointer;aspect-ratio:3/4;
   border:1px solid rgba(201,168,106,.35)}
 .ph-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
 .ph-item:active img{transform:scale(1.06)}
-.ph-item.tall{grid-row:span 2;aspect-ratio:3/4}
-.ph-item.wide{aspect-ratio:4/3}
-.ph-item.sq{aspect-ratio:1/1}
 .ph-item .del{
   position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;
   background:rgba(43,35,30,.55);color:#fff;display:none;align-items:center;justify-content:center;
@@ -243,7 +248,6 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
   padding:2px 8px;border-radius:999px;display:none;letter-spacing:1px;
 }
 .ph-item.is-uploaded .tag{display:block}
-.album-hint{text-align:center;color:var(--ink-soft);font-size:.82rem;margin-top:18px;letter-spacing:1px}
 
 /* ============ 婚礼信息 ============ */
 .info-cards{display:flex;flex-direction:column;gap:14px}
@@ -275,9 +279,8 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
 .sch-item:last-child{padding-bottom:0}
 .sch-time{
   position:absolute;left:0;top:0;width:52px;text-align:center;
-  font-family:var(--serif);font-weight:700;color:var(--champagne-deep);font-size:1rem;line-height:1.25;
+  font-family:var(--serif);font-weight:700;color:var(--champagne-deep);font-size:1.12rem;line-height:1.2;
 }
-.sch-time small{display:block;font-size:.66rem;color:var(--ink-soft);font-weight:400;letter-spacing:1px}
 .sch-node{
   position:absolute;left:22px;top:8px;width:11px;height:11px;border-radius:50%;
   background:var(--ivory);border:2px solid var(--champagne);
@@ -472,11 +475,11 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
       <svg id="icoPause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="4" width="4" height="16" rx="1.5"/><rect x="15" y="4" width="4" height="16" rx="1.5"/></svg>
     </button>
     <!-- 上传封面背景 -->
-    <button class="icon-btn" id="coverUpBtn" aria-label="上传封面背景" title="上传封面背景">
+    <button class="mini-upload" id="coverUpBtn" aria-label="上传封面背景" title="更换封面背景">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </button>
     <!-- 恢复默认封面 -->
-    <button class="icon-btn" id="coverResetBtn" style="display:none" aria-label="恢复默认封面" title="恢复默认封面">
+    <button class="mini-upload" id="coverResetBtn" style="display:none" aria-label="恢复默认封面" title="恢复默认封面">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
     </button>
   </div>
@@ -582,16 +585,14 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
       <p class="sec-sub">轻轻点开，看看我们的幸福模样</p>
     </div>
 
-    <div class="album-toolbar reveal">
-      <button class="btn-gold" id="albumUpBtn">
+    <div class="album-toolbar">
+      <button class="mini-upload" id="albumUpBtn" aria-label="上传照片" title="添加照片">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        批量上传照片
       </button>
       <input type="file" id="albumFile" accept="image/*" multiple hidden>
     </div>
 
     <div class="album-grid" id="albumGrid"></div>
-    <p class="album-hint reveal">照片保存在本地浏览器中 · 上传后可长按删除</p>
   </div>
 </section>
 
@@ -646,27 +647,27 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
     <div class="sch-list">
       <div class="sch-item reveal">
         <span class="sch-node"></span>
-        <div class="sch-time">16:30<small>签到迎宾</small></div>
+        <div class="sch-time">16:30</div>
         <div class="sch-body"><div class="sch-t">签到迎宾</div><div class="sch-d">请宾客抵达酒店，签到并留下您的祝福</div></div>
       </div>
       <div class="sch-item reveal">
         <span class="sch-node"></span>
-        <div class="sch-time">17:18<small>暖场仪式</small></div>
+        <div class="sch-time">17:18</div>
         <div class="sch-body"><div class="sch-t">暖场仪式</div><div class="sch-d">亲友互动，共同静候幸福时刻的到来</div></div>
       </div>
       <div class="sch-item reveal">
         <span class="sch-node"></span>
-        <div class="sch-time">18:18<small>婚礼仪式</small></div>
+        <div class="sch-time">18:18</div>
         <div class="sch-body"><div class="sch-t">婚礼仪式</div><div class="sch-d">交换誓言，共许余生，请见证我们的幸福</div></div>
       </div>
       <div class="sch-item reveal">
         <span class="sch-node"></span>
-        <div class="sch-time">19:18<small>婚宴开席</small></div>
+        <div class="sch-time">19:18</div>
         <div class="sch-body"><div class="sch-t">婚宴开席</div><div class="sch-d">举杯同庆，共赏良辰与佳宴</div></div>
       </div>
       <div class="sch-item reveal">
         <span class="sch-node"></span>
-        <div class="sch-time">20:30<small>感恩致谢</small></div>
+        <div class="sch-time">20:30</div>
         <div class="sch-body"><div class="sch-t">感恩致谢</div><div class="sch-d">答谢宾客，合影留念，定格珍贵瞬间</div></div>
       </div>
     </div>
@@ -1039,18 +1040,12 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
   ];
   var uploaded=store.get('wb_album',[]);
   var grid=$('#albumGrid');
-  function cls(i,total){
-    if(total<=4)return (i%2===0)?'tall':'wide';
-    if(i%3===0)return 'tall';
-    if(i%3===1)return 'wide';
-    return 'sq';
-  }
   function renderAlbum(){
     var items=uploaded.concat(DEFAULT_PHOTOS);
     var html='';
     items.forEach(function(src,i){
       var isUp=i<uploaded.length;
-      html+='<div class="ph-item '+cls(i,items.length)+(isUp?' is-uploaded':'')+'" data-idx="'+i+'">'
+      html+='<div class="ph-item'+(isUp?' is-uploaded':'')+'" data-idx="'+i+'">'
         +'<img src="'+src+'" alt="婚礼照片" loading="lazy">'
         +'<button class="del" data-i="'+i+'" aria-label="删除这张照片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></button>'
         +(isUp?'<span class="tag">已上传</span>':'')
