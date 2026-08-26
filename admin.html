@@ -30,6 +30,10 @@
   button:hover{background:var(--champagne);color:#fff}
   .hint{font-size:.76rem;color:var(--ink-soft);margin-top:12px;letter-spacing:1px;line-height:1.8}
   .err{color:#c2564e;font-size:.82rem;margin-bottom:10px;display:none}
+  .stat-row{display:flex;gap:12px;margin-bottom:16px}
+  .stat{flex:1;background:linear-gradient(135deg,#FFFDF8,#F7EFDE);border:1px solid rgba(201,168,106,.45);border-radius:12px;padding:16px 10px;text-align:center;box-shadow:0 4px 12px rgba(75,63,54,.05)}
+  .stat .num{font-family:Georgia,"Times New Roman",serif;font-size:1.7rem;font-weight:700;color:var(--champagne-deep)}
+  .stat .lab{font-size:.74rem;color:var(--ink-soft);letter-spacing:2px;margin-top:4px}
   .toolbar{text-align:right;margin-bottom:14px}
   .toolbar a{font-size:.8rem;color:var(--champagne-deep);text-decoration:none;letter-spacing:1px;border:1px solid rgba(201,168,106,.55);padding:5px 14px;border-radius:999px;margin-left:8px;display:inline-block}
   .badge{font-size:.74rem;color:var(--ink-soft);letter-spacing:1px;text-align:center;margin-top:26px}
@@ -48,6 +52,11 @@
   </div>
 
   <div id="panel" style="display:none">
+    <div class="stat-row">
+      <div class="stat"><div class="num" id="stRsvp">0</div><div class="lab">出席回执</div></div>
+      <div class="stat"><div class="num" id="stGuests">0</div><div class="lab">预计出席人数</div></div>
+      <div class="stat"><div class="num" id="stBless">0</div><div class="lab">祝福留言</div></div>
+    </div>
     <div class="toolbar">
       <a href="#" id="refreshBtn">🔄 刷新数据</a>
       <a href="index.html" target="_blank">🎫 打开请帖</a>
@@ -86,6 +95,9 @@ function load(){
   dbReq('classes/WeddingRSVP?order=-createdAt&limit=500').then(function(d){
     var rows=d.results||[];
     $('#rsvpCount').textContent=rows.length;
+    $('#stRsvp').textContent=rows.length;
+    var guestsTotal=rows.reduce(function(s,r){return s+(parseInt(r.guests,10)||1);},0);
+    $('#stGuests').textContent=guestsTotal;
     if(!rows.length){rsvpBox.innerHTML='<div class="empty">暂无回执，宾客提交后会自动出现在这里</div>';return;}
     rsvpBox.innerHTML='<table><tr><th>姓名</th><th>人数</th><th>电话</th><th>祝福</th><th>时间</th></tr>'+
       rows.map(function(r){
@@ -96,6 +108,7 @@ function load(){
   dbReq('classes/WeddingBless?order=-createdAt&limit=200').then(function(d){
     var rows=d.results||[];
     $('#blessCount').textContent=rows.length;
+    $('#stBless').textContent=rows.length;
     if(!rows.length){blessBox.innerHTML='<div class="empty">暂无祝福留言</div>';return;}
     blessBox.innerHTML=rows.map(function(r){
       return '<div class="bless-row"><span class="who">'+esc(r.name||r.who||'匿名')+'</span><span class="when">'+fmt(r.createdAt)+'</span><div class="msg">'+esc(r.msg)+'</div></div>';
