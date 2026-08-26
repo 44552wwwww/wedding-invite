@@ -48,7 +48,6 @@
     <div class="err" id="err">密码不正确，请重试</div>
     <input type="password" id="pass" placeholder="请输入管理密码" autocomplete="off">
     <button id="loginBtn">进 入</button>
-    <p class="hint">默认管理密码 <b>20261003</b>，可在本文件顶部 ADMIN_PASS 处修改</p>
   </div>
 
   <div id="panel" style="display:none">
@@ -60,6 +59,7 @@
     <div class="toolbar">
       <a href="#" id="refreshBtn">🔄 刷新数据</a>
       <a href="index.html" target="_blank">🎫 打开请帖</a>
+      <a href="#" id="logoutBtn">🚪 退出登录</a>
     </div>
     <div class="card">
       <h2>出席回执 <span class="n" id="rsvpCount">0</span></h2>
@@ -114,19 +114,36 @@ function load(){
     }).join('');
   }).catch(function(){blessBox.innerHTML='<div class="empty">读取失败，请检查凭证配置或网络</div>';});
 }
+function enterAdmin(){
+  $('#err').style.display='none';
+  $('#loginBox').style.display='none';
+  $('#panel').style.display='block';
+  load();
+}
 $('#loginBtn').addEventListener('click',function(){
   var v=$('#pass').value.trim();
   if(v===ADMIN_PASS){
-    $('#err').style.display='none';
-    $('#loginBox').style.display='none';
-    $('#panel').style.display='block';
-    load();
+    try{localStorage.setItem('wb_admin_authed','1');}catch(e){}
+    enterAdmin();
   }else{
     $('#err').style.display='block';
   }
 });
 $('#pass').addEventListener('keydown',function(e){if(e.key==='Enter')$('#loginBtn').click();});
 $('#refreshBtn').addEventListener('click',function(e){e.preventDefault();load();});
+$('#logoutBtn').addEventListener('click',function(e){
+  e.preventDefault();
+  try{localStorage.removeItem('wb_admin_authed');}catch(e2){}
+  $('#panel').style.display='none';
+  $('#loginBox').style.display='block';
+  $('#pass').value='';
+});
+/* 记住登录状态：刷新 / 重开页面后仍保持已登录，无需重复输密码 */
+(function(){
+  try{
+    if(localStorage.getItem('wb_admin_authed')==='1'){enterAdmin();}
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
