@@ -893,30 +893,31 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
     set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){console.warn('存储失败',e);}}
   };
 
-  /* ================= 云端数据库（可选：LeanCloud） =================
-   * 在下面填入你的 LeanCloud 应用凭证即可启用云端同步：
+  /* ================= 云端数据库（可选：Supabase） =================
+   * 在下面填入你的 Supabase 项目凭证即可启用云端同步：
    * 宾客提交的【出席回执】与【祝福留言】会写入云端数据库，你随时在
-   * https://console.leancloud.cn 或配套管理页 admin.html 查看。
+   * Supabase 控制台 Table Editor 或配套管理页 admin.html 查看。
    * 不填则保持纯本地模式，页面功能不受影响。
-   * 注册开通：https://leancloud.cn → 免费创建应用 → 设置-应用凭证 获取三项。
+   * 获取方式：Supabase 控制台 → 项目设置 → API 密钥 → 可发布密钥(Publishable key)。
+   * 注意：只能填「可发布密钥」，切勿把「秘密密钥(secret)」填进网页代码。
    */
-  var LC_APP_ID  = '';   // ← 填入 App ID
-  var LC_APP_KEY = '';   // ← 填入 App Key
-  var LC_API     = '';   // ← 填入 API 服务器地址（形如 https://xxxx.cn-n1.leancloud.cn/1.1/）
+  var SUPA_URL = 'https://jqdiilylccnufwtshjyyw.supabase.co';          // ← 你的 Project URL
+  var SUPA_KEY = 'sb_publishable_mbC9lxXsB_Zek1KWJAPmCA_TTYh3cWp';   // ← 可发布密钥（Publishable key）
   var DB={
     on:false,
-    init:function(){DB.on=!!(LC_APP_ID&&LC_APP_KEY&&LC_API);return DB.on;},
+    init:function(){DB.on=!!(SUPA_URL&&SUPA_KEY);return DB.on;},
     req:function(path,method,body){
-      return fetch(LC_API+path,{
-        method:method||'GET',
-        headers:{'X-LC-Id':LC_APP_ID,'X-LC-Key':LC_APP_KEY,'Content-Type':'application/json'},
-        body:body?JSON.stringify(body):undefined
-      }).then(function(r){if(!r.ok)throw new Error('DB '+r.status);return r.json();});
+      var opt={method:method||'GET',headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+      if(body)opt.body=JSON.stringify(body);
+      return fetch(SUPA_URL+'/rest/v1/'+path,opt).then(function(r){
+        if(!r.ok)throw new Error('DB '+r.status);
+        return r.text().then(function(t){return t?JSON.parse(t):[];});
+      });
     },
-    saveRSVP:function(d){return DB.req('classes/WeddingRSVP','POST',d);},
-    saveBless:function(d){return DB.req('classes/WeddingBless','POST',d);},
+    saveRSVP:function(d){return DB.req('wedding_rsvp','POST',d);},
+    saveBless:function(d){return DB.req('wedding_bless','POST',d);},
     loadBless:function(){
-      return DB.req('classes/WeddingBless?order=-createdAt&limit=100').then(function(d){return d.results||[];});
+      return DB.req('wedding_bless?select=*&order=created_at.desc&limit=100').then(function(d){return d||[];});
     }
   };
   DB.init();
@@ -1237,7 +1238,7 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
     list.unshift(rec);
     store.set('wb_rsvp',list);
     if(DB.on)DB.saveRSVP(rec).catch(function(){/* 云端暂不可用不影响本地 */});
-    if(rec.bless)addBlessing(rec.name,rec.bless);
+    /* 方案 B：回执里的祝福语只进后台（wedding_rsvp.bless），不上公开祝福墙 */
     rsvpForm.style.display='none';
     $('#rsvpSuccess').style.display='block';
   });
@@ -1252,7 +1253,7 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
     if(!DB.on)return;
     DB.loadBless().then(function(rows){
       var cloud=rows.map(function(r){
-        return {who:r.name||r.who||'匿名',msg:r.msg||'',when:r.createdAt?new Date(r.createdAt).getTime():Date.now()};
+        return {who:r.name||r.who||'匿名',msg:r.msg||'',when:r.created_at?new Date(r.created_at).getTime():Date.now()};
       }).filter(function(b){return b.msg;});
       if(!cloud.length)return;
       var local=store.get('wb_bless',[]);
