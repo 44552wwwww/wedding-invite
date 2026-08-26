@@ -750,14 +750,14 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
   </div>
 </section>
 
-<!-- ================= 9. 祝福墙 ================= -->
+<!-- ================= 9. 送祝福 ================= -->
 <section class="section" id="blessing">
   <div class="sec-inner">
     <div class="sec-head reveal">
       <span class="sec-eyebrow">Blessings</span>
-      <h2 class="sec-title">祝福墙</h2>
+      <h2 class="sec-title">送祝福</h2>
       <div class="sec-divider"><i></i></div>
-      <p class="sec-sub">留下您的一句话，照亮我们的余生</p>
+      <p class="sec-sub">写下您对我们的祝福，我们会把这份心意珍藏起来</p>
     </div>
 
     <form class="reveal" id="blessForm">
@@ -769,8 +769,6 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
         <button type="submit" class="btn-gold">送上祝福</button>
       </div>
     </form>
-
-    <div class="bless-wall" id="blessWall"></div>
   </div>
 </section>
 
@@ -1237,63 +1235,33 @@ input,textarea,select{font-family:inherit;font-size:1rem;color:var(--ink)}
     var list=store.get('wb_rsvp',[]);
     list.unshift(rec);
     store.set('wb_rsvp',list);
-    if(DB.on)DB.saveRSVP(rec).catch(function(){/* 云端暂不可用不影响本地 */});
+    if(DB.on)DB.saveRSVP({
+      name:rec.name,
+      guests:rec.guests,
+      phone:rec.phone,
+      bless:rec.bless
+    }).catch(function(){/* 云端暂不可用不影响本地 */});
     /* 方案 B：回执里的祝福语只进后台（wedding_rsvp.bless），不上公开祝福墙 */
     rsvpForm.style.display='none';
     $('#rsvpSuccess').style.display='block';
   });
 
-  /* ================= 祝福墙 ================= */
-  var SEED_BLESS=[];   // 预置示例留言已移除，祝福墙从空开始
-  var blessList=store.get('wb_bless',SEED_BLESS);
-  /* 版本标记：清掉旧版缓存的预置示例留言，祝福墙从空开始（只清一次） */
-  if(store.get('wb_bless_ver','')!=='2'){
-    blessList=[];
-    store.set('wb_bless',blessList);
-    store.set('wb_bless_ver','2');
-  }
-  function loadCloudBless(){
-    if(!DB.on)return;
-    DB.loadBless().then(function(rows){
-      var cloud=rows.map(function(r){
-        return {who:r.name||r.who||'匿名',msg:r.msg||'',when:r.created_at?new Date(r.created_at).getTime():Date.now()};
-      }).filter(function(b){return b.msg;});
-      if(!cloud.length)return;
-      var local=store.get('wb_bless',[]);
-      var seen={},merged=cloud.concat(local);
-      merged.forEach(function(b){seen[b.who+'|'+b.msg]=(seen[b.who+'|'+b.msg]||0)+1;});
-      blessList=merged.filter(function(b){return seen[b.who+'|'+b.msg]--;}).slice(0,50);
-      store.set('wb_bless',blessList);
-      renderBless();
-    }).catch(function(){});
-  }
-  function fmtTime(t){
-    var d=new Date(t);
-    return (d.getMonth()+1)+'月'+d.getDate()+'日';
-  }
-  function renderBless(){
-    var wall=$('#blessWall');
-    if(!blessList.length){wall.innerHTML='<div class="bless-empty">还没有祝福，来留下第一句吧～</div>';return;}
-    wall.innerHTML=blessList.map(function(b){
-      return '<div class="bless-item reveal in"><div class="head"><span class="who">'+esc(b.who)+'</span><span class="when">'+fmtTime(b.when)+'</span></div><div class="msg">'+esc(b.msg)+'</div></div>';
-    }).join('');
-  }
+  /* ================= 送祝福（宾客只填昵称+祝福，不上墙公开展示） ================= */
   function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-  function addBlessing(who,msg){
-    blessList.unshift({who:who||'匿名',msg:msg,when:Date.now()});
-    if(blessList.length>50)blessList.pop();
-    store.set('wb_bless',blessList);
-    if(DB.on)DB.saveBless({name:who||'匿名',msg:msg}).catch(function(){});
-    renderBless();
-  }
-  renderBless();
-  loadCloudBless();
   $('#blessForm').addEventListener('submit',function(e){
     e.preventDefault();
     var msg=document.getElementById('blessMsg').value.trim();
     if(!msg){toast('请先写下您的祝福～');return;}
-    var name=document.getElementById('blessName').value.trim();
-    addBlessing(name,msg);
+    var name=document.getElementById('blessName').value.trim()||'匿名';
+    if(DB.on){
+      DB.saveBless({name:name,msg:msg}).then(function(){
+        toast('感谢您的祝福，我们已收到 ❤');
+      }).catch(function(){
+        toast('网络异常，祝福暂未送达，请稍后再试');
+      });
+    }else{
+      toast('感谢您的祝福，我们已收到 ❤');
+    }
     document.getElementById('blessMsg').value='';
     document.getElementById('blessName').value='';
   });
